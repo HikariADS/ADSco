@@ -6,17 +6,27 @@ function Login({ setUser }) {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const users = JSON.parse(localStorage.getItem('users')) || [];
-    const existingUser = users.find(u => u.email === email && u.password === password);
-
-    if (existingUser) {
-      const role = email === 'admin@adsdev.vn' ? 'admin' : 'user';
-      setUser({ ...existingUser, role });
-      navigate('/dashboard');
-    } else {
-      alert('Email hoặc mật khẩu không đúng!');
+  
+    try {
+      const res = await fetch('http://localhost:5000/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+  
+      const data = await res.json();
+  
+      if (res.ok) {
+        setUser(data.user); // cập nhật user vào App state
+        navigate('/dashboard');
+      } else {
+        alert(data.message || 'Đăng nhập thất bại');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Lỗi kết nối đến server');
     }
   };
 

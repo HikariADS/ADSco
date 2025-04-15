@@ -12,23 +12,32 @@ function Register() {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
       alert("Mật khẩu không khớp!");
       return;
     }
-
-    const users = JSON.parse(localStorage.getItem('users')) || [];
-    const exists = users.some(u => u.email === formData.email);
-    if (exists) {
-      alert('Email đã được sử dụng!');
-      return;
+  
+    try {
+      const res = await fetch('http://localhost:5000/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+  
+      const data = await res.json();
+  
+      if (res.ok) {
+        alert('Đăng ký thành công! Vui lòng đăng nhập.');
+        navigate('/login');
+      } else {
+        alert(data.message || 'Đăng ký thất bại');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Lỗi kết nối đến server');
     }
-    users.push(formData);
-    localStorage.setItem('users', JSON.stringify(users));
-    alert('Đăng ký thành công! Vui lòng đăng nhập.');
-    navigate('/login');
   };
 
   return (
