@@ -1,6 +1,8 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 
 function ProductDetail() {
+  const { id } = useParams();
   return (
     <div className="container mt-4" style={{ maxWidth: 900 }}>
       <div style={{ display: 'flex', gap: 32 }}>
@@ -13,7 +15,7 @@ function ProductDetail() {
           </div>
         </div>
         <div style={{ flex: 2 }}>
-          <h2>Tên sản phẩm</h2>
+          <h2>Chi tiết sản phẩm ID: {id}</h2>
           <div>Giá: ...</div>
           <div style={{ margin: '16px 0' }}>Mô tả sản phẩm...</div>
           <button className="btn btn-success">Thêm vào giỏ hàng</button>
