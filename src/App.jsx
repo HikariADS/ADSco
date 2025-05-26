@@ -77,28 +77,30 @@ function App() {
 
   return (
     <Router>
-      <Navbar user={user} onLogout={handleLogout} cartCount={cart.length} />
-      <div className="main-content">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<Login setUser={handleSetUser} />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/profile" element={user ? <Profile user={user} /> : <Navigate to="/login" />} />
-          <Route path="/products" element={<ProductList />} />
-          <Route path="/products/:id" element={<ProductDetail onAddToCart={handleAddToCart} />} />
-          <Route path="/category/:category" element={<CategoryPage />} />
-          <Route path="/cart" element={
-            <Cart 
-              cart={cart} 
-              onRemoveFromCart={handleRemoveFromCart}
-              onUpdateQuantity={handleUpdateQuantity}
-            />
-          } />
-          <Route path="/wishlist" element={user ? <Wishlist user={user} /> : <Navigate to="/login" />} />
-          <Route path="/checkout" element={user ? <Checkout cart={cart} /> : <Navigate to="/login" />} />
-          <Route path="/orders" element={user ? <OrderHistory user={user} /> : <Navigate to="/login" />} />
-          <Route path="/admin" element={user?.isAdmin ? <Admin /> : <Navigate to="/" />} />
-        </Routes>
+      <div>
+        <Navbar user={user} onLogout={handleLogout} cartCount={cart.length} />
+        <div className="main-content">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<Login setUser={handleSetUser} />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/profile" element={user ? <Profile user={user} /> : <Navigate to="/login" />} />
+            <Route path="/products" element={<ProductList />} />
+            <Route path="/products/:id" element={<ProductDetail onAddToCart={handleAddToCart} />} />
+            <Route path="/category/:category" element={<CategoryPage />} />
+            <Route path="/cart" element={
+              <Cart 
+                cart={cart} 
+                onRemoveFromCart={handleRemoveFromCart}
+                onUpdateQuantity={handleUpdateQuantity}
+              />
+            } />
+            <Route path="/wishlist" element={user ? <Wishlist user={user} /> : <Navigate to="/login" />} />
+            <Route path="/checkout" element={user ? <Checkout cart={cart} /> : <Navigate to="/login" />} />
+            <Route path="/orders" element={user ? <OrderHistory user={user} /> : <Navigate to="/login" />} />
+            <Route path="/admin" element={user?.role === 'admin' ? <Admin /> : <Navigate to="/" />} />
+          </Routes>
+        </div>
       </div>
     </Router>
   );

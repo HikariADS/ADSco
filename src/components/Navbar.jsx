@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import './Navbar.css';
 import logo from '../assets/logo.png';
+import defaultAvatar from '../assets/default-avatar.png';
 
-function Navbar() {
-  const [menuOpen, setMenuOpen] = useState(false);
+function Navbar({ user, onLogout, cartCount }) {
+  const [menuOpen, setMenuOpen] = React.useState(false);
 
   return (
     <>
@@ -40,8 +41,31 @@ function Navbar() {
           {/* Icon */}
           <div className="navbar-icons d-flex gap-3 align-items-center">
             <Link to="/wishlist" className="icon-link"><i className="bi bi-heart"></i></Link>
-            <Link to="/cart" className="icon-link"><i className="bi bi-cart"></i></Link>
-            <Link to="/login" className="btn btn-outline-dark btn-sm">Đăng nhập</Link>
+            <Link to="/cart" className="icon-link">
+              <i className="bi bi-cart"></i>
+              {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
+            </Link>
+            
+            {user ? (
+              <div className="d-flex gap-2 align-items-center">
+                <Link to="/profile" className="user-profile">
+                  <img 
+                    src={user.avatar || defaultAvatar}
+                    alt={user.name}
+                    className="user-avatar"
+                  />
+                  <span className="user-name">{user.name}</span>
+                </Link>
+                <button onClick={onLogout} className="logout-btn" title="Đăng xuất">
+                  <i className="bi bi-box-arrow-right"></i>
+                </button>
+              </div>
+            ) : (
+              <>
+                <Link to="/login" className="btn btn-outline-dark btn-sm">Đăng nhập</Link>
+                <Link to="/register" className="btn btn-dark btn-sm">Đăng ký</Link>
+              </>
+            )}
           </div>
         </div>
 
