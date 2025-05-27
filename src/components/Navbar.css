@@ -178,25 +178,23 @@
 .user-profile {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 6px 16px;
-  border-radius: 25px;
-  background: #fff;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: #f8f9fa;
   transition: all 0.2s ease;
-  border: 1px solid #e0e0e0;
-  text-decoration: none;
 }
 
 .user-profile:hover {
-  background: #f8f9fa;
-  border-color: #d0d0d0;
+  background: #e9ecef;
 }
 
 .user-avatar {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   object-fit: cover;
+  border: 2px solid #fff;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
@@ -204,48 +202,26 @@
   font-weight: 500;
   color: #333;
   margin: 0;
-  font-size: 14px;
-  max-width: 150px;
+  max-width: 120px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .logout-btn {
-  width: 36px;
-  height: 36px;
+  padding: 6px 10px;
   border-radius: 50%;
+  aspect-ratio: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
   background: #fff;
-  border: 1px solid #e0e0e0;
-  color: #666;
-  padding: 0;
-}
-
-.logout-btn:hover {
-  background: #f8f9fa;
-  border-color: #dc3545;
+  border: 1px solid #dc3545;
   color: #dc3545;
 }
 
-.cart-count {
-  position: absolute;
-  top: -8px;
-  right: -8px;
+.logout-btn:hover {
   background: #dc3545;
-  color: white;
-  border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.icon-link {
-  position: relative;
+  color: #fff;
 } 

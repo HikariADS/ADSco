@@ -5,7 +5,6 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Navbar from './components/Navbar';
-import Footer from './components/Footer';
 import ProductList from './pages/ProductList';
 import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
@@ -13,8 +12,6 @@ import Wishlist from './pages/Wishlist';
 import CategoryPage from './pages/CategoryPage';
 import Checkout from './pages/Checkout';
 import OrderHistory from './pages/OrderHistory';
-import Admin from './pages/Admin';
-import BlogBlock from './components/BlogBlock';
 import './App.css';
 
 function App() {
@@ -34,6 +31,12 @@ function App() {
   }, []);
 
   const handleSetUser = (u) => {
+    // Kiểm tra nếu là tài khoản admin
+    if (u.email === 'admin@example.com' && u.password === '123') {
+      u.role = 'admin';
+    } else {
+      u.role = 'user';
+    }
     setUser(u);
     localStorage.setItem("currentUser", JSON.stringify(u));
   };
@@ -81,7 +84,7 @@ function App() {
         <Navbar user={user} onLogout={handleLogout} cartCount={cart.length} />
         <div className="main-content">
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<HomePage user={user} />} />
             <Route path="/login" element={<Login setUser={handleSetUser} />} />
             <Route path="/register" element={<Register />} />
             <Route path="/profile" element={user ? <Profile user={user} /> : <Navigate to="/login" />} />
@@ -98,7 +101,6 @@ function App() {
             <Route path="/wishlist" element={user ? <Wishlist user={user} /> : <Navigate to="/login" />} />
             <Route path="/checkout" element={user ? <Checkout cart={cart} /> : <Navigate to="/login" />} />
             <Route path="/orders" element={user ? <OrderHistory user={user} /> : <Navigate to="/login" />} />
-            <Route path="/admin" element={user?.role === 'admin' ? <Admin /> : <Navigate to="/" />} />
           </Routes>
         </div>
       </div>

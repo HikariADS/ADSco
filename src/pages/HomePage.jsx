@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import guitar1 from '../assets/guitar1.webp';
@@ -22,10 +22,13 @@ import BlogBlock from '../components/BlogBlock';
 import SpecialsBlock from '../components/SpecialsBlock';
 import Footer from '../components/Footer';
 
-function HomePage() {
+function HomePage({ user }) {
   const navigate = useNavigate();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editingProduct, setEditingProduct] = useState(null);
 
-  // Danh sách ảnh banner hero (dùng ảnh thật nếu có, chưa có thì để placeholder)
+  // Danh sách ảnh banner hero
   const heroBanners = [
     {
       image: deal,
@@ -53,6 +56,91 @@ function HomePage() {
     arrows: true,
     autoplay: true,
     autoplaySpeed: 4000,
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/products');
+      if (!response.ok) {
+        throw new Error('Lỗi khi tải danh sách sản phẩm');
+      }
+      const data = await response.json();
+      setProducts(data);
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Có lỗi xảy ra khi tải danh sách sản phẩm');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteProduct = async (productId) => {
+    if (!window.confirm('Bạn có chắc muốn xóa sản phẩm này?')) return;
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/products/${productId}`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) {
+        throw new Error('Lỗi khi xóa sản phẩm');
+      }
+
+      alert('Xóa sản phẩm thành công!');
+      fetchProducts();
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Có lỗi xảy ra khi xóa sản phẩm');
+    }
+  };
+
+  const handleUpdateProduct = async (product) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/products/${product.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(product)
+      });
+
+      if (!response.ok) {
+        throw new Error('Lỗi khi cập nhật sản phẩm');
+      }
+
+      alert('Cập nhật sản phẩm thành công!');
+      setEditingProduct(null);
+      fetchProducts();
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Có lỗi xảy ra khi cập nhật sản phẩm');
+    }
+  };
+
+  const handleAddProduct = async (product) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(product)
+      });
+
+      if (!response.ok) {
+        throw new Error('Lỗi khi thêm sản phẩm');
+      }
+
+      alert('Thêm sản phẩm thành công!');
+      fetchProducts();
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Có lỗi xảy ra khi thêm sản phẩm');
+    }
   };
 
   // Dữ liệu sản phẩm nổi bật với ảnh local
@@ -181,11 +269,11 @@ function HomePage() {
         <div className="container">
           <h2 className="section-title text-center mb-5">Sản Phẩm Nổi Bật</h2>
           <div className="row gx-4 gy-4">
-            {featuredProducts.map(product => (
+            {products.map(product => (
               <div key={product.id} className="col-12 col-sm-6 col-md-3 d-flex">
                 <div className="product-card w-100">
                   <div className="product-image">
-                    <img src={product.image} alt={product.name} className="img-fluid" />
+                    <img src={product.imageUrl || placeholder} alt={product.name} className="img-fluid" />
                     <div className="product-overlay">
                       <button
                         className="btn btn-primary"
@@ -197,8 +285,7 @@ function HomePage() {
                   </div>
                   <div className="product-info">
                     <h3>{product.name}</h3>
-                    <p className="category">{product.category}</p>
-                    <p className="price">{product.price} VNĐ</p>
+                    <p className="price">{product.price?.toLocaleString('vi-VN')}đ</p>
                   </div>
                 </div>
               </div>
@@ -242,6 +329,127 @@ function HomePage() {
           </form>
         </div>
       </section>
+
+      {/* Product Management Section - Only visible for admin */}
+      {user?.role === 'admin' && (
+        <section className="admin-section py-5">
+          <div className="container">
+            <h2 className="section-title text-center mb-5">Quản lý sản phẩm</h2>
+            <div className="row mb-4">
+              <div className="col-12">
+                <button 
+                  className="btn btn-primary"
+                  onClick={() => setEditingProduct({})}
+                >
+                  Thêm sản phẩm mới
+                </button>
+              </div>
+            </div>
+            <div className="table-responsive">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Giá</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {products.map(product => (
+                    <tr key={product.id}>
+                      <td>{product.id}</td>
+                      <td>{product.name}</td>
+                      <td>{product.price?.toLocaleString('vi-VN')}đ</td>
+                      <td>
+                        <button 
+                          className="btn btn-warning btn-sm me-2"
+                          onClick={() => setEditingProduct(product)}
+                        >
+                          Sửa
+                        </button>
+                        <button 
+                          className="btn btn-danger btn-sm"
+                          onClick={() => handleDeleteProduct(product.id)}
+                        >
+                          Xóa
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Product Edit Modal */}
+      {editingProduct && (
+        <div className="modal show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">{editingProduct.id ? 'Sửa sản phẩm' : 'Thêm sản phẩm mới'}</h5>
+                <button type="button" className="btn-close" onClick={() => setEditingProduct(null)}></button>
+              </div>
+              <div className="modal-body">
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  if (editingProduct.id) {
+                    handleUpdateProduct(editingProduct);
+                  } else {
+                    handleAddProduct(editingProduct);
+                  }
+                }}>
+                  <div className="mb-3">
+                    <label className="form-label">Tên sản phẩm</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={editingProduct.name || ''}
+                      onChange={(e) => setEditingProduct({...editingProduct, name: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Giá</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      value={editingProduct.price || ''}
+                      onChange={(e) => setEditingProduct({...editingProduct, price: Number(e.target.value)})}
+                      required
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Mô tả</label>
+                    <textarea
+                      className="form-control"
+                      value={editingProduct.description || ''}
+                      onChange={(e) => setEditingProduct({...editingProduct, description: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">URL Hình ảnh</label>
+                    <input
+                      type="url"
+                      className="form-control"
+                      value={editingProduct.imageUrl || ''}
+                      onChange={(e) => setEditingProduct({...editingProduct, imageUrl: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <button type="submit" className="btn btn-primary">
+                    {editingProduct.id ? 'Cập nhật' : 'Thêm mới'}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <Footer />
     </div>
   );
